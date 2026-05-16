@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DealDesk Ops</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar">
+        <div class="brand">
+          <span class="brand-mark">DD</span>
+          <div>
+            <strong>DealDesk</strong>
+            <span>Revenue operations</span>
+          </div>
+        </div>
+
+        <nav class="nav-list" aria-label="Primary navigation">
+          <button class="nav-item active" type="button" data-view="overview">Overview</button>
+          <button class="nav-item" type="button" data-view="customers">Customers</button>
+          <button class="nav-item" type="button" data-view="vendors">Vendors</button>
+          <button class="nav-item" type="button" data-view="invoices">Invoices</button>
+          <button class="nav-item" type="button" data-view="tickets">Support</button>
+        </nav>
+
+        <div class="sidebar-card">
+          <span class="label">Workspace</span>
+          <strong>Acme Cloud GTM</strong>
+          <p>Mock internal admin app for customer, vendor, and billing operations.</p>
+        </div>
+      </aside>
+
+      <main class="main">
+        <header class="topbar">
+          <div>
+            <p class="eyebrow">Internal admin</p>
+            <h1 id="pageTitle">Revenue command center</h1>
+          </div>
+          <div class="topbar-actions">
+            <button type="button" id="syncButton">Sync data</button>
+            <button type="button" class="primary">New account</button>
+          </div>
+        </header>
+
+        <section class="metric-grid" aria-label="Business metrics">
+          <article class="metric-card">
+            <span>Managed ARR</span>
+            <strong id="metricArr">$0</strong>
+            <small>Across active customers</small>
+          </article>
+          <article class="metric-card">
+            <span>At-risk accounts</span>
+            <strong id="metricRisk">0</strong>
+            <small>Renewal or support risk</small>
+          </article>
+          <article class="metric-card">
+            <span>Open invoices</span>
+            <strong id="metricInvoices">0</strong>
+            <small>Pending collection</small>
+          </article>
+          <article class="metric-card">
+            <span>Critical tickets</span>
+            <strong id="metricTickets">0</strong>
+            <small>Needs escalation</small>
+          </article>
+        </section>
+
+        <section id="content" class="content-grid"></section>
+      </main>
+    </div>
+
+    <script type="module" src="./app.js"></script>
+  </body>
+</html>

@@ -28,7 +28,7 @@ Open `http://localhost:5173`.
 
 ## Redis Stack Setup
 
-Redis Stack is optional, but enables the full hackathon memory pipeline. Run it locally before starting the backend:
+Redis Stack enables the sponsor hot-memory path for the hackathon demo. Run it locally before starting the backend:
 
 ```bash
 docker run --rm --name redline-redis-stack \
@@ -48,6 +48,8 @@ The backend uses these Redis capabilities when they are available:
 
 If Redis is missing, unreachable, or lacks a module, Redline falls back to local file-backed wiki behavior and in-process memory where supported. Preflight and wiki writeback continue to work; Redis search, vector recall, streams, and fingerprint acceleration are degraded rather than fatal.
 
+For a sponsor-required demo, set `REDLINE_REQUIRE_SPONSOR_MEMORY=true`. Then `/health` and `/sponsor-status` report `required_not_ready` until both Redis and Cognee are available.
+
 ## Cognee Setup
 
 Copy `backend/.env.example` to `backend/.env` if you want to configure optional services. Do not commit real secrets.
@@ -60,10 +62,24 @@ Safe environment names:
 - `COGNEE_ENABLED`: set to `true` to enable durable Cognee memory.
 - `COGNEE_DATASET`: dataset namespace for Redline memories.
 - `COGNEE_SESSION_PREFIX`: optional prefix for session-scoped memory IDs.
+- `REDLINE_REQUIRE_SPONSOR_MEMORY`: set to `true` for demos where Redis and Cognee must both be active.
 - `LLM_PROVIDER`: provider identifier for Cognee-backed LLM work.
 - `LLM_MODEL`: model name used by Cognee-backed LLM work.
 - `LLM_API_KEY`: provider API key; leave empty in the example file.
 - `OPENAI_API_KEY`: optional OpenAI-compatible key; leave empty in the example file.
+
+Minimum sponsor demo `.env`:
+
+```bash
+REDIS_URL=redis://localhost:6379/0
+COGNEE_ENABLED=true
+COGNEE_DATASET=redline-hackathon
+COGNEE_SESSION_PREFIX=redline
+REDLINE_REQUIRE_SPONSOR_MEMORY=true
+LLM_PROVIDER=openai
+LLM_MODEL=gpt-4o-mini
+LLM_API_KEY=your-provider-key
+```
 
 ## Hackathon Memory Pipeline
 
@@ -79,6 +95,33 @@ The demo flow exercises:
 - Feedback and self-improvement: feedback records a score and human-readable critique before any durable skill or memory improvement is applied.
 - Lint: wiki cleanup checks for duplicates, conflicts, and stale memory, with dry-run behavior for safe demos.
 - Promotion: accepted catches become observed violations and regression tests in the wiki, RedisJSON, Redis search memory, and Cognee durable memory when adapters are enabled.
+
+## Agent Guard Demo
+
+Redline is connected to coding agents through persistent repo instructions plus two CLI commands:
+
+```bash
+python3 scripts/redline_context.py "implement a project lookup endpoint"
+python3 scripts/redline_preflight.py --diff
+python3 scripts/redline_finding.py --title "Missing object authorization" --description "Endpoint reads project_id without an ownership check." --evidence "app/routes.py:42"
+```
+
+For the connected demo, start the backend first so the UI and event APIs can show `agent.context_retrieved` and `preflight.completed`:
+
+```bash
+cd backend
+uvicorn app.main:app --host localhost --reload
+```
+
+To demo the same task without Redline, disable the guard:
+
+```bash
+REDLINE_AGENT_GUARD=off python3 scripts/redline_context.py "implement a project lookup endpoint"
+REDLINE_AGENT_GUARD=off python3 scripts/redline_preflight.py --diff
+REDLINE_AGENT_GUARD=off python3 scripts/redline_finding.py --title "Missing object authorization" --description "Endpoint reads project_id without an ownership check."
+```
+
+Leave `REDLINE_AGENT_GUARD` unset, or set it to `on`, for the normal connected flow. If the backend is not running, the scripts fall back to local wiki files and deterministic detectors; this still protects the agent, but it will not create backend demo events. Agent-discovered findings are written to `wiki/agent_findings` after Redline searches prior findings and memory for duplicates.
 
 ## Demo Script
 
@@ -97,11 +140,17 @@ The demo flow exercises:
 13. Show Redline catches untrusted instruction override text and rewrites behavior to treat it as data only.
 14. Submit feedback with a low score to show Cognee durable/session memory recording the critique and proposing improvement before apply.
 15. Run lint in dry-run mode to show duplicate, conflict, and stale-memory checks without destructive cleanup.
+16. Run `python3 scripts/redline_context.py "implement a SQL-backed user lookup"` to show the agent retrieving wiki rules before coding.
+17. Run `python3 scripts/redline_preflight.py --content 'query = f"SELECT * FROM users WHERE email = {email}"'` to show the agent-side guard blocking unsafe code.
+18. Run `python3 scripts/redline_finding.py --title "Missing object authorization" --description "Endpoint reads project_id without checking ownership." --evidence "demo endpoint"` to show Redline searching prior memory and logging a novel security issue.
+19. Repeat any command with `REDLINE_AGENT_GUARD=off` to show the without-Redline baseline.
 
 ## What Works
 
 - `GET /health`
 - `POST /ingest`
+- `POST /agent/context`
+- `POST /agent/finding`
 - `POST /preflight`
 - `POST /accept-rewrite`
 - `POST /feedback`

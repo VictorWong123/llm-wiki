@@ -17,6 +17,7 @@ from .models import (
     PreflightResult,
     RegressionTestEntry,
     SafetyRule,
+    SecurityFindingEntry,
     TraceEvent,
     ViolationEntry,
     utc_now,
@@ -145,6 +146,38 @@ def build_regression_memory(
     }
 
 
+def build_security_finding_memory(
+    finding: SecurityFindingEntry,
+    input_type: InputType,
+    language: str | None,
+    embedder: HashEmbeddingProvider,
+) -> dict[str, Any]:
+    risk_type = risk_type_for_rule_id(finding.matched_rule_id) or finding.category
+    content = " ".join(
+        [
+            finding.title,
+            finding.description,
+            finding.evidence or "",
+            finding.affected_content or "",
+            finding.safe_rewrite or "",
+        ]
+    )
+    return {
+        "id": finding.id,
+        "kind": "agent_finding",
+        "risk_type": risk_type,
+        "severity": finding.severity,
+        "language": language,
+        "title": finding.title,
+        "source": finding.source,
+        "content": content,
+        "proposal_type": input_type,
+        "matched_rule_ids": [finding.matched_rule_id] if finding.matched_rule_id else [],
+        "created_at": finding.created_at,
+        "embedding": embedder.embed(content),
+    }
+
+
 def guess_risk_type(content: str, input_type: InputType) -> str | None:
     lowered = content.lower()
     if re.search(r"\b(select|insert|update|delete|drop)\b", lowered):
@@ -201,6 +234,28 @@ class RedisMemoryAdapter:
             return
         self._detect_capabilities()
         self.ensure_search_index()
+
+    @property
+    def configured(self) -> bool:
+        return bool(os.getenv("REDIS_URL"))
+
+    @property
+    def degraded(self) -> bool:
+        return self.configured and not self.available
+
+    @property
+    def status(self) -> dict[str, Any]:
+        return {
+            "configured": self.configured,
+            "available": self.available,
+            "degraded": self.degraded,
+            "redis_json": self.json_available,
+            "redis_search": self.search_available,
+            "redis_vector": self.vector_available,
+            "redis_streams": self.streams_available,
+            "url_env": "REDIS_URL" if self.configured else None,
+            "role": "hot session memory, vector recall, streams, and unsafe-pattern fingerprints",
+        }
 
     def _detect_capabilities(self) -> None:
         if not self._client:
@@ -317,7 +372,13 @@ class RedisMemoryAdapter:
 
     def set_json(self, key: str, value: Any, ttl_seconds: int = 300) -> None:
         try:
-            self._set_plain_json(key, value, ttl_seconds=ttl_seconds)
+            safe_value = _json_safe(value)
+            if self._client and self.json_available:
+                self._client.json().set(key, "$", safe_value)
+                if ttl_seconds:
+                    self._client.expire(key, ttl_seconds)
+                return
+            self._set_plain_json(key, safe_value, ttl_seconds=ttl_seconds)
         except Exception:
             return
 
@@ -325,6 +386,8 @@ class RedisMemoryAdapter:
         if not self._client:
             return None
         try:
+            if self.json_available:
+                return self._client.json().get(key)
             raw = self._client.get(key)
             return json.loads(raw) if raw else None
         except Exception:
@@ -399,6 +462,16 @@ class RedisMemoryAdapter:
     def remember_regression(self, regression: RegressionTestEntry, violation_id: str | None) -> None:
         self.store_document(f"regression:{regression.id}", {**regression.model_dump(), "violation_id": violation_id, "risk_type": risk_type_for_rule_id(regression.matched_rule_id)})
         self.store_document(f"memory:regression:{regression.id}", build_regression_memory(regression, violation_id, self.embedder))
+
+    def remember_security_finding(self, finding: SecurityFindingEntry, input_type: InputType, language: str | None) -> None:
+        doc = {
+            **finding.model_dump(),
+            "risk_type": risk_type_for_rule_id(finding.matched_rule_id) or finding.category,
+            "proposal_type": input_type,
+            "language": language,
+        }
+        self.store_document(f"finding:{finding.id}", doc)
+        self.store_document(f"memory:finding:{finding.id}", build_security_finding_memory(finding, input_type, language, self.embedder))
 
     def remember_preflight(self, result: PreflightResult, content_hash: str, input_type: InputType, language: str | None) -> None:
         if not result.preflight_id:

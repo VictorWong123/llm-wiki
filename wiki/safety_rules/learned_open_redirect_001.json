@@ -1,0 +1,21 @@
+{
+  "category": "open_redirect",
+  "created_at": "2026-05-16T22:37:06Z",
+  "id": "learned_open_redirect_001",
+  "rule_text": "Do not redirect to user-controlled URLs unless the target is constrained to a safe same-origin path or explicit allowlist.",
+  "safe_patterns": [
+    "Prefer fixed server-side redirect destinations for sensitive flows.",
+    "Allow only relative same-origin paths when a return destination is required.",
+    "Validate external redirect targets against an explicit allowlist.",
+    "Fall back to a safe default route when validation fails."
+  ],
+  "severity": "medium",
+  "source": "OWASP Unvalidated Redirects and Forwards Cheat Sheet",
+  "source_url": "https://cheatsheetseries.owasp.org/cheatsheets/Unvalidated_Redirects_and_Forwards_Cheat_Sheet.html",
+  "title": "Open Redirect: Validate Redirect Targets",
+  "unsafe_patterns": [
+    "Login, logout, invite, or completion route redirects directly to a next, returnUrl, redirect, or url parameter.",
+    "Redirect target accepts absolute external URLs without validation.",
+    "Redirect validation checks string prefixes instead of parsing and enforcing origin or allowlisted paths."
+  ]
+}

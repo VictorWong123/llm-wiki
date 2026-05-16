@@ -61,7 +61,7 @@ def _evidence(name: str, message: str, content: str, start: int, end: int) -> Ev
 
 def detect_sql_injection(content: str) -> DetectorMatch | None:
     patterns = [
-        (re.compile(rf"f([\"']).*?{SQL_KEYWORDS}.*?\{{[^}}]+\}}.*?\1", re.I | re.S), "SQL f-string interpolates a value"),
+        (re.compile(rf"f([\"'])(?=[^\n]*{SQL_KEYWORDS})[^\n]*\{{[^}}\n]+\}}[^\n]*\1", re.I), "SQL f-string interpolates a value"),
         (re.compile(rf"{SQL_KEYWORDS}[^;\n]*(?:\+|%)[^;\n]*", re.I), "SQL string is built with concatenation or formatting"),
         (re.compile(rf"{SQL_KEYWORDS}[^;\n]*\.format\(", re.I), "SQL string uses .format interpolation"),
         (re.compile(rf"`[^`]*{SQL_KEYWORDS}[^`]*\$\{{[^}}]+\}}[^`]*`", re.I | re.S), "SQL template literal interpolates a value"),

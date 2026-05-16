@@ -146,6 +146,80 @@ class MemoryRecallResponse(BaseModel):
     degraded: bool = False
 
 
+class AgentContextRequest(BaseModel):
+    task: str
+    content: str | None = None
+    input_type: InputType = "code"
+    language: str | None = None
+    session_id: str | None = None
+    top_k: int = Field(default=5, ge=1, le=20)
+
+
+class AgentRuleContext(BaseModel):
+    rule_id: str
+    title: str
+    severity: Severity
+    category: str
+    source: str
+    rule_text: str
+    unsafe_patterns: list[str] = Field(default_factory=list)
+    safe_patterns: list[str] = Field(default_factory=list)
+    why_relevant: str
+
+
+class AgentContextResponse(BaseModel):
+    session_id: str
+    query: str
+    rules: list[AgentRuleContext] = Field(default_factory=list)
+    similar_memories: list[MemoryMatch] = Field(default_factory=list)
+    memory_trace: list[str] = Field(default_factory=list)
+    degraded: bool = False
+    guard_enabled: bool = True
+
+
+class SecurityFindingEntry(BaseModel):
+    id: str
+    title: str
+    description: str
+    status: Status = "NEEDS HUMAN REVIEW"
+    severity: Severity
+    category: str = "secure_code"
+    matched_rule_id: str | None = None
+    evidence: str | None = None
+    affected_content: str | None = None
+    safe_rewrite: str | None = None
+    source: str = "agent"
+    session_id: str | None = None
+    created_at: str
+
+
+class AgentFindingRequest(BaseModel):
+    title: str
+    description: str
+    evidence: str | None = None
+    affected_content: str | None = None
+    safe_rewrite: str | None = None
+    severity: Severity = "medium"
+    category: str = "secure_code"
+    matched_rule_id: str | None = None
+    input_type: InputType = "code"
+    language: str | None = None
+    session_id: str | None = None
+    log_if_new: bool = True
+    similarity_threshold: float = Field(default=0.74, ge=0, le=1)
+    top_k: int = Field(default=5, ge=1, le=20)
+
+
+class AgentFindingResponse(BaseModel):
+    status: Literal["EXISTING_MATCH_FOUND", "LOGGED_NEW_FINDING", "NOT_LOGGED"]
+    session_id: str
+    query: str
+    existing_matches: list[MemoryMatch] = Field(default_factory=list)
+    finding: SecurityFindingEntry | None = None
+    memory_trace: list[str] = Field(default_factory=list)
+    guard_enabled: bool = True
+
+
 class FeedbackRequest(BaseModel):
     session_id: str | None = None
     preflight_id: str | None = None
@@ -203,6 +277,23 @@ class LintResponse(BaseModel):
 
 class EventListResponse(BaseModel):
     events: list[TraceEvent] = Field(default_factory=list)
+
+
+class RecentWikiEntry(BaseModel):
+    id: str
+    kind: Literal["agent_finding", "observed_violation", "regression_test", "safety_rule"]
+    title: str
+    summary: str
+    created_at: str
+    severity: Severity | None = None
+    status: Status | None = None
+    matched_rule_id: str | None = None
+    source_path: str
+    app_path: str
+
+
+class RecentWikiResponse(BaseModel):
+    entries: list[RecentWikiEntry] = Field(default_factory=list)
 
 
 def utc_now() -> str:

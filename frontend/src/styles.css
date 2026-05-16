@@ -109,10 +109,10 @@ th {
 .site-shell {
   display: grid;
   grid-template-areas:
-    "header header header"
-    "left main right"
-    "footer footer footer";
-  grid-template-columns: 220px minmax(620px, 1fr) 260px;
+    "header header"
+    "left main"
+    "footer footer";
+  grid-template-columns: 220px minmax(620px, 1fr);
   grid-template-rows: 92px 1fr 44px;
   min-height: 100vh;
 }
@@ -198,14 +198,6 @@ th {
 .site-main {
   grid-area: main;
   padding: 24px 32px;
-}
-
-.right-rail {
-  display: grid;
-  gap: 28px;
-  grid-area: right;
-  padding: 24px 14px;
-  align-content: start;
 }
 
 .site-footer {
@@ -424,6 +416,32 @@ th {
   margin-top: 18px;
 }
 
+.page-note {
+  background: #fff8dc;
+  border: 1px solid #c8ccd1;
+  padding: 8px;
+}
+
+.recently-added-table th:first-child,
+.recently-added-table td:first-child {
+  width: 150px;
+}
+
+.recently-added-table th:nth-child(2),
+.recently-added-table td:nth-child(2) {
+  width: 130px;
+}
+
+.table-summary {
+  margin: 4px 0 0;
+}
+
+.table-meta {
+  color: #54595d;
+  font-size: 14px;
+  margin: 4px 0 0;
+}
+
 @media (max-width: 900px) {
   body {
     min-width: 0;
@@ -446,8 +464,7 @@ th {
   }
 
   .left-sidebar,
-  .site-main,
-  .right-rail {
+  .site-main {
     border-right: 0;
     padding: 18px;
   }

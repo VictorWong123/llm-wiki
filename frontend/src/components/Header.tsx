@@ -19,6 +19,7 @@ export function Header() {
       </div>
       <nav className="top-nav" aria-label="Top navigation">
         <Link to="/">main page</Link>
+        <Link to="/recently-added">recently added</Link>
         <Link to="/recent-changes">recent changes</Link>
         <Link to="/help">help</Link>
       </nav>

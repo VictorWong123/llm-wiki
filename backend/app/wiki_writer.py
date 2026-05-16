@@ -5,7 +5,7 @@ import re
 from pathlib import Path
 from typing import Any
 
-from .models import RegressionTestEntry, SafetyRule, ViolationEntry
+from .models import RegressionTestEntry, SafetyRule, SecurityFindingEntry, ViolationEntry
 
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -25,6 +25,7 @@ def ensure_wiki_dirs() -> None:
         "safe_patterns",
         "observed_violations",
         "regression_tests",
+        "agent_findings",
     ]:
         (WIKI_ROOT / name).mkdir(parents=True, exist_ok=True)
 
@@ -42,6 +43,7 @@ def write_rule(rule: SafetyRule) -> None:
         f"category: {rule.category}",
         f"severity: {rule.severity}",
         f"source: {rule.source}",
+        f"source_url: {rule.source_url or ''}",
         "status: active",
         f"created_at: {rule.created_at}",
         "---",
@@ -50,6 +52,9 @@ def write_rule(rule: SafetyRule) -> None:
         "",
         "## Rule",
         rule.rule_text,
+        "",
+        "## Source",
+        rule.source_url or rule.source,
         "",
         "## Unsafe Patterns",
         *[f"- {pattern}" for pattern in rule.unsafe_patterns],
@@ -124,6 +129,43 @@ created_at: {entry.created_at}
 
 ## Expected
 {entry.expected_status}
+"""
+    base.with_suffix(".md").write_text(markdown, encoding="utf-8")
+    write_json(base.with_suffix(".json"), entry.model_dump())
+
+
+def write_security_finding(entry: SecurityFindingEntry) -> None:
+    ensure_wiki_dirs()
+    base = WIKI_ROOT / "agent_findings" / entry.id
+    markdown = f"""---
+id: {entry.id}
+severity: {entry.severity}
+status: {entry.status}
+matched_rule_id: {entry.matched_rule_id or ""}
+source: {entry.source}
+created_at: {entry.created_at}
+---
+
+# Agent Security Finding: {entry.title}
+
+## Description
+{entry.description}
+
+## Evidence
+{entry.evidence or "No evidence supplied."}
+
+## Affected Content
+```text
+{entry.affected_content or ""}
+```
+
+## Safe Rewrite
+```text
+{entry.safe_rewrite or "NEEDS HUMAN REVIEW"}
+```
+
+## Notes
+This finding was logged by an agent after checking Redline memory for prior similar issues.
 """
     base.with_suffix(".md").write_text(markdown, encoding="utf-8")
     write_json(base.with_suffix(".json"), entry.model_dump())

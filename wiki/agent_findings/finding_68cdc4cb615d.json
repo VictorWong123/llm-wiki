@@ -1,0 +1,15 @@
+{
+  "affected_content": "from fastapi import FastAPI\nimport httpx\n\napp = FastAPI()\n\n@app.get(\"/preview\")\nasync def preview(url: str):\n    response = await httpx.get(url, timeout=5)\n    return {\"status\": response.status_code, \"body\": response.text[:500]}\n",
+  "category": "server_side_request_forgery",
+  "created_at": "2026-05-16T21:43:07Z",
+  "description": "The route fetches a user-controlled URL without scheme, host, IP range, or redirect allowlist checks. Attackers could target internal metadata or private services.",
+  "evidence": "demo-site SSRF scenario: httpx.get(url) is called with the raw request parameter.",
+  "id": "finding_68cdc4cb615d",
+  "matched_rule_id": "raw_input_validation_001",
+  "safe_rewrite": "from fastapi import FastAPI, HTTPException\nfrom urllib.parse import urlparse\nimport httpx\n\napp = FastAPI()\n\nALLOWED_PREVIEW_HOSTS = {\"example.com\", \"docs.example.com\"}\n\n@app.get(\"/preview\")\nasync def preview(url: str):\n    parsed = urlparse(url)\n    if parsed.scheme != \"https\" or parsed.hostname not in ALLOWED_PREVIEW_HOSTS:\n        raise HTTPException(status_code=400, detail=\"URL host is not allowed\")\n\n    async with httpx.AsyncClient(timeout=5, follow_redirects=False) as client:\n        response = await client.get(url)\n    return {\"status\": response.status_code, \"body\": response.text[:500]}\n",
+  "session_id": "demo:1778967764273",
+  "severity": "high",
+  "source": "agent",
+  "status": "NEEDS HUMAN REVIEW",
+  "title": "SSRF risk in URL preview endpoint"
+}

@@ -8,6 +8,7 @@ const links = [
   ["Safe Patterns", "/safe-patterns"],
   ["Observed Violations", "/violations"],
   ["Regression Tests", "/regression-tests"],
+  ["Recently Added", "/recently-added"],
   ["Recent Changes", "/recent-changes"],
   ["About Redline", "/about"]
 ];

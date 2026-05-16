@@ -38,6 +38,7 @@ class MemoryAdapter:
 
     def __init__(self, dataset_name: str | None = None) -> None:
         self.dataset_name = dataset_name or os.getenv("COGNEE_DATASET", "redline_memory")
+        self.session_prefix = os.getenv("COGNEE_SESSION_PREFIX", "redline")
         self._cognee: Any | None = None
         self._search_type: Any | None = None
         self._last_error: str | None = None
@@ -58,6 +59,12 @@ class MemoryAdapter:
         except Exception as exc:
             self._last_error = f"Cognee unavailable: {exc}"
             self._cognee = None
+            return
+        self._configure_cognee()
+
+    @property
+    def configured(self) -> bool:
+        return os.getenv("COGNEE_ENABLED", "false").lower() in {"1", "true", "yes", "on"}
 
     @property
     def available(self) -> bool:
@@ -70,6 +77,21 @@ class MemoryAdapter:
     @property
     def last_error(self) -> str | None:
         return self._last_error
+
+    @property
+    def status(self) -> dict[str, Any]:
+        return {
+            "configured": self.configured,
+            "available": self.available,
+            "degraded": self.degraded,
+            "dataset": self.dataset_name,
+            "session_prefix": self.session_prefix,
+            "last_error": self._last_error,
+            "llm_provider_env": "LLM_PROVIDER" if os.getenv("LLM_PROVIDER") else None,
+            "llm_model_env": "LLM_MODEL" if os.getenv("LLM_MODEL") else None,
+            "api_key_env": "LLM_API_KEY" if os.getenv("LLM_API_KEY") else ("OPENAI_API_KEY" if os.getenv("OPENAI_API_KEY") else None),
+            "role": "durable cross-session agent memory, feedback, and improvement proposals",
+        }
 
     @property
     def log(self) -> list[dict[str, Any]]:
@@ -100,10 +122,9 @@ class MemoryAdapter:
         entry = self._append_memory("session", label, payload, {"session_id": session_id})
         self._session_memories.setdefault(session_id, []).append(entry)
         if self._cognee:
-            text = _text_for(label, payload, {"session_id": session_id})
-            if hasattr(self._cognee, "remember"):
-                self._call_cognee("remember", text, session_id=session_id)
-            else:
+            scoped_session_id = self._scoped_session_id(session_id)
+            text = _text_for(label, payload, {"session_id": scoped_session_id})
+            if not self._try_cognee_add(text, dataset_name=self.dataset_name, node_set=[self.session_prefix, scoped_session_id, label]):
                 self._try_cognee_add(text, dataset_name=self.dataset_name)
         return entry
 
@@ -211,7 +232,7 @@ class MemoryAdapter:
                 "recall",
                 query,
                 datasets=[self.dataset_name],
-                session_id=session_id,
+                session_id=self._scoped_session_id(session_id),
             )
         kwargs: dict[str, Any] = {"query_text": query, "datasets": [self.dataset_name]}
         query_type = getattr(self._search_type, "GRAPH_COMPLETION", None) if self._search_type else None
@@ -219,7 +240,12 @@ class MemoryAdapter:
             kwargs["query_type"] = query_type
         result = self._call_cognee("search", **kwargs)
         if result is None:
+            kwargs["datasets"] = self.dataset_name
+            result = self._call_cognee("search", **kwargs)
+        if result is None:
             result = self._call_cognee("search", query, datasets=[self.dataset_name])
+        if result is None:
+            result = self._call_cognee("search", query, datasets=self.dataset_name)
         return result
 
     def _recall_from_local(
@@ -248,8 +274,11 @@ class MemoryAdapter:
         ranked.sort(key=lambda item: (item[0], item[1].get("created_at", "")), reverse=True)
         return [entry for _, entry in ranked[:top_k]]
 
-    def _try_cognee_add(self, text: str, dataset_name: str) -> bool:
-        result = self._call_cognee("add", text, dataset_name=dataset_name)
+    def _try_cognee_add(self, text: str, dataset_name: str, node_set: list[str] | None = None) -> bool:
+        kwargs: dict[str, Any] = {"dataset_name": dataset_name}
+        if node_set:
+            kwargs["node_set"] = node_set
+        result = self._call_cognee("add", text, **kwargs)
         if result is not None or self._last_error is None:
             return True
         self._last_error = None
@@ -257,7 +286,37 @@ class MemoryAdapter:
 
     def _try_cognee_cognify(self) -> None:
         if self._cognee:
-            self._call_cognee("cognify", datasets=[self.dataset_name])
+            result = self._call_cognee("cognify", datasets=[self.dataset_name])
+            if result is None:
+                self._call_cognee("cognify", datasets=self.dataset_name)
+
+    def _configure_cognee(self) -> None:
+        if not self._cognee:
+            return
+        config = getattr(self._cognee, "config", None)
+        if config is None:
+            return
+        provider = os.getenv("LLM_PROVIDER")
+        model = os.getenv("LLM_MODEL")
+        if provider and hasattr(config, "set_llm_provider"):
+            self._call_config(config, "set_llm_provider", provider)
+        if model and hasattr(config, "set_llm_model"):
+            self._call_config(config, "set_llm_model", model)
+
+    def _call_config(self, config: Any, method_name: str, value: str) -> None:
+        method = getattr(config, method_name, None)
+        if not method:
+            return
+        try:
+            method(value)
+            self._last_error = None
+        except Exception as exc:
+            self._last_error = f"Cognee config {method_name} failed: {exc}"
+
+    def _scoped_session_id(self, session_id: str) -> str:
+        if session_id.startswith(f"{self.session_prefix}:"):
+            return session_id
+        return f"{self.session_prefix}:{session_id}"
 
     def _call_cognee(self, method_name: str, *args: Any, **kwargs: Any) -> Any:
         if not self._cognee:

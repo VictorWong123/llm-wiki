@@ -1,0 +1,15 @@
+{
+  "affected_content": "rows.push([customer.company, customer.domain, customer.owner, customer.notes].join(','));",
+  "category": "csv_formula_injection",
+  "created_at": "2026-05-16T22:36:13Z",
+  "description": "Customer CSV export writes untrusted notes exactly as stored. Spreadsheet apps may interpret cells beginning with formula control characters as formulas.",
+  "evidence": "Demo verification: /api/customers/export.csv exports a note beginning with =HYPERLINK(...) without neutralization.",
+  "id": "finding_ce17aa87902b",
+  "matched_rule_id": "learned_csv_formula_injection_001",
+  "safe_rewrite": "Quote CSV fields, escape embedded quotes, and neutralize cells beginning with =, +, -, or @ before export.",
+  "session_id": "demo:csv-rule-promotion",
+  "severity": "medium",
+  "source": "agent",
+  "status": "NEEDS HUMAN REVIEW",
+  "title": "CSV formula injection risk in customer export"
+}
