@@ -1,0 +1,487 @@
+{
+  "project": {
+    "name": "Redline",
+    "page_type": "retro_wiki_landing_page",
+    "purpose": "A landing/main page for an LLM safety wiki that shows a working preflight check, safety rules, violations, and searchable wiki navigation.",
+    "design_principle": "Old-school early web/wiki aesthetic, but every link and section must map to a real route or app action."
+  },
+  "visual_style": {
+    "era_reference": "Late 1990s / early 2000s wiki/documentation site",
+    "overall_feel": "Plain, dense, functional, text-first, no modern SaaS cards, no gradients except optional red hatch alert background.",
+    "background": "#ffffff",
+    "border_style": "1px solid #a2a9b1",
+    "link_style": "blue, underlined, browser-default feeling",
+    "avoid": [
+      "icons",
+      "rounded modern cards",
+      "drop shadows",
+      "large whitespace",
+      "fake metrics",
+      "decorative widgets",
+      "links that do nothing"
+    ]
+  },
+  "typography": {
+    "body_font_family": "Georgia, 'Times New Roman', Times, serif",
+    "mono_font_family": "'Courier New', Courier, monospace",
+    "base_font_size": "16px",
+    "body_line_height": 1.35,
+    "headings": {
+      "h1": {
+        "font_family": "Georgia, 'Times New Roman', Times, serif",
+        "font_size": "32px",
+        "font_weight": 700,
+        "color": "#000000",
+        "margin": "0 0 8px"
+      },
+      "h2": {
+        "font_size": "21px",
+        "font_weight": 700,
+        "color": "#000000",
+        "margin": "0 0 8px"
+      },
+      "h3": {
+        "font_size": "18px",
+        "font_weight": 700,
+        "color": "#000000",
+        "margin": "0 0 6px"
+      }
+    },
+    "logo": {
+      "font_family": "Georgia, 'Times New Roman', Times, serif",
+      "font_size": "40px",
+      "font_weight": 700,
+      "color": "#c00000",
+      "line_height": 1
+    },
+    "tagline": {
+      "font_size": "16px",
+      "font_style": "italic",
+      "color": "#222222"
+    },
+    "code": {
+      "font_family": "'Courier New', Courier, monospace",
+      "font_size": "15px",
+      "line_height": 1.35
+    }
+  },
+  "colors": {
+    "page_background": "#ffffff",
+    "text": "#000000",
+    "muted_text": "#333333",
+    "link": "#0000ee",
+    "visited_link": "#551a8b",
+    "border": "#a2a9b1",
+    "light_border": "#d0d0d0",
+    "panel_background": "#ffffff",
+    "sidebar_background": "#f8f9fa",
+    "alert_red": "#cc0000",
+    "alert_pale_red": "#fff0f0",
+    "critical": "#cc0000",
+    "warning": "#b35c00",
+    "pass_green": "#006400",
+    "code_background": "#f8f8f8"
+  },
+  "layout": {
+    "viewport_min_width": "1100px",
+    "page_display": "grid",
+    "grid_template_columns": "220px minmax(620px, 1fr) 260px",
+    "grid_template_rows": "92px 1fr 44px",
+    "areas": {
+      "header": "spans all columns",
+      "left_sidebar": "column 1 row 2",
+      "main": "column 2 row 2",
+      "right_sidebar": "column 3 row 2",
+      "footer": "spans all columns"
+    },
+    "header": {
+      "height": "92px",
+      "display": "grid",
+      "grid_template_columns": "260px 1fr 340px",
+      "border_bottom": "1px solid #a2a9b1",
+      "logo_area_padding": "14px 18px",
+      "top_links_align": "center",
+      "search_align": "center right",
+      "search_width": "240px"
+    },
+    "left_sidebar": {
+      "background": "#f8f9fa",
+      "border_right": "1px solid #a2a9b1",
+      "padding": "24px 18px",
+      "link_gap": "10px"
+    },
+    "main": {
+      "padding": "24px 32px",
+      "max_width": "none"
+    },
+    "right_sidebar": {
+      "padding": "24px 14px",
+      "box_gap": "28px"
+    },
+    "footer": {
+      "border_top": "1px solid #a2a9b1",
+      "padding": "12px 18px",
+      "display": "flex",
+      "justify_content": "space-between"
+    }
+  },
+  "routes_and_links": {
+    "all_links_must_work": true,
+    "routing_model": "Use React Router or a simple internal state router. Every link should navigate to a page/section, update the URL hash/path, or trigger a real action.",
+    "routes": [
+      {
+        "path": "/",
+        "label": "Main Page",
+        "purpose": "Landing page with featured preflight result and recent violations"
+      },
+      {
+        "path": "/preflight",
+        "label": "New Preflight Check",
+        "purpose": "Form to paste code/content and run Redline preflight"
+      },
+      {
+        "path": "/rules",
+        "label": "Safety Rules",
+        "purpose": "List all safety rules"
+      },
+      {
+        "path": "/rules/:id",
+        "label": "Rule Detail",
+        "purpose": "Show one rule, unsafe patterns, safe rewrite guidance, examples, tests"
+      },
+      {
+        "path": "/unsafe-patterns",
+        "label": "Unsafe Patterns",
+        "purpose": "List unsafe patterns detected by Redline"
+      },
+      {
+        "path": "/safe-patterns",
+        "label": "Safe Patterns",
+        "purpose": "List recommended fixes"
+      },
+      {
+        "path": "/violations",
+        "label": "Observed Violations",
+        "purpose": "List all observed violations"
+      },
+      {
+        "path": "/violations/:id",
+        "label": "Violation Detail",
+        "purpose": "Show one violation report"
+      },
+      {
+        "path": "/regression-tests",
+        "label": "Regression Tests",
+        "purpose": "List generated tests"
+      },
+      {
+        "path": "/recent-changes",
+        "label": "Recent Changes",
+        "purpose": "Show recent wiki/rule/violation updates"
+      },
+      {
+        "path": "/help",
+        "label": "Help",
+        "purpose": "Explain how Redline works"
+      },
+      {
+        "path": "/about",
+        "label": "About Redline",
+        "purpose": "Short product explanation"
+      },
+      {
+        "path": "/docs",
+        "label": "Docs",
+        "purpose": "Documentation page"
+      },
+      {
+        "path": "/contribute",
+        "label": "Contribute",
+        "purpose": "How to contribute rules"
+      },
+      {
+        "path": "/changelog",
+        "label": "Changelog",
+        "purpose": "Version history"
+      },
+      {
+        "path": "/security",
+        "label": "Security",
+        "purpose": "Security policy page"
+      },
+      {
+        "path": "/api",
+        "label": "API",
+        "purpose": "API docs page"
+      },
+      {
+        "path": "/search?q=",
+        "label": "Search Results",
+        "purpose": "Working search results page"
+      }
+    ]
+  },
+  "search": {
+    "location": "top right header",
+    "behavior": "Search must work locally over rules, violations, unsafe patterns, safe patterns, regression tests, and help/docs pages.",
+    "input_placeholder": "",
+    "button_label": "Search",
+    "on_submit": "Navigate to /search?q=<encoded query> and display matching records.",
+    "match_fields": [
+      "title",
+      "id",
+      "category",
+      "severity",
+      "description",
+      "rule_text",
+      "evidence",
+      "safe_rewrite"
+    ],
+    "empty_query_behavior": "Show all searchable items or a message: 'Enter a search term.'",
+    "no_results_behavior": "Show: 'No matching Redline pages found.'",
+    "result_style": "Old wiki search results list with title link, route, and one-line snippet."
+  },
+  "content_structure": {
+    "header": {
+      "logo": "Redline",
+      "tagline": "A living safety wiki for coding agents.",
+      "top_nav": [
+        {
+          "label": "main page",
+          "href": "/"
+        },
+        {
+          "label": "recent changes",
+          "href": "/recent-changes"
+        },
+        {
+          "label": "help",
+          "href": "/help"
+        }
+      ]
+    },
+    "left_sidebar": [
+      {
+        "label": "Main Page",
+        "href": "/"
+      },
+      {
+        "label": "New Preflight Check",
+        "href": "/preflight"
+      },
+      {
+        "label": "Safety Rules",
+        "href": "/rules"
+      },
+      {
+        "label": "Unsafe Patterns",
+        "href": "/unsafe-patterns"
+      },
+      {
+        "label": "Safe Patterns",
+        "href": "/safe-patterns"
+      },
+      {
+        "label": "Observed Violations",
+        "href": "/violations"
+      },
+      {
+        "label": "Regression Tests",
+        "href": "/regression-tests"
+      },
+      {
+        "label": "Recent Changes",
+        "href": "/recent-changes"
+      },
+      {
+        "type": "divider"
+      },
+      {
+        "label": "About Redline",
+        "href": "/about"
+      }
+    ],
+    "main_landing_page": {
+      "title": "Redline Main Page",
+      "intro": "Redline helps agents write safer code by making safety rules executable, observable, and fixable.",
+      "secondary_intro": "Run a preflight check on your changes to catch issues before they reach production.",
+      "featured_panel": "Preflight Check Result",
+      "featured_status": "REDLINE TRIGGERED",
+      "featured_example": {
+        "check_id": "chk_20250525_154120",
+        "project": "payments-service",
+        "branch": "feat/txn-refactor",
+        "triggered": "May 25, 2025 15:41 UTC",
+        "duration": "2.31s",
+        "status": "FAILED",
+        "matched_rule_id": "SQLI-001",
+        "matched_rule_title": "Avoid string-concatenated SQL with untrusted input",
+        "severity": "Critical",
+        "confidence": "High",
+        "category": "Injection",
+        "evidence_file": "src/payments/repo.py",
+        "evidence_lines": "42-45",
+        "unsafe_code": [
+          "user_id = request.params[\"user_id\"]",
+          "query = \"SELECT * FROM users WHERE id = '\" + user_id + \"'\"",
+          "cur.execute(query)",
+          "return cur.fetchall()"
+        ],
+        "safe_rewrite_summary": "Use parameterized queries (prepare + bind).",
+        "safe_code": [
+          "user_id = request.params[\"user_id\"]",
+          "query = \"SELECT * FROM users WHERE id = ?\"",
+          "cur.execute(query, (user_id,))",
+          "return cur.fetchall()"
+        ]
+      },
+      "recent_violations": [
+        {
+          "id": "chk_20250525_154120",
+          "rule": "SQLI-001",
+          "project": "payments-service",
+          "branch": "feat/txn-refactor",
+          "time": "2 min ago"
+        },
+        {
+          "id": "chk_20250525_142233",
+          "rule": "SQLI-001",
+          "project": "auth-service",
+          "branch": "main",
+          "time": "1 hr ago"
+        },
+        {
+          "id": "chk_20250525_101015",
+          "rule": "XSS-002",
+          "project": "web-portal",
+          "branch": "main",
+          "time": "5 hrs ago"
+        }
+      ]
+    },
+    "right_sidebar": [
+      {
+        "title": "Quick Links",
+        "links": [
+          {
+            "label": "New Preflight Check",
+            "href": "/preflight"
+          },
+          {
+            "label": "All Safety Rules",
+            "href": "/rules"
+          },
+          {
+            "label": "All Unsafe Patterns",
+            "href": "/unsafe-patterns"
+          },
+          {
+            "label": "All Safe Patterns",
+            "href": "/safe-patterns"
+          },
+          {
+            "label": "Upload Evidence",
+            "href": "/preflight?mode=evidence"
+          },
+          {
+            "label": "Run Regression Tests",
+            "href": "/regression-tests?run=true"
+          }
+        ]
+      },
+      {
+        "title": "Featured Rule",
+        "rule_id": "SQLI-001",
+        "description": "Avoid string-concatenated SQL with untrusted input.",
+        "links": [
+          {
+            "label": "View Rule",
+            "href": "/rules/SQLI-001"
+          },
+          {
+            "label": "Examples",
+            "href": "/rules/SQLI-001#examples"
+          },
+          {
+            "label": "Tests",
+            "href": "/rules/SQLI-001#tests"
+          }
+        ]
+      },
+      {
+        "title": "About Redline",
+        "description": "Redline is an open safety layer for AI coding agents.",
+        "links": [
+          {
+            "label": "Docs",
+            "href": "/docs"
+          },
+          {
+            "label": "Contribute",
+            "href": "/contribute"
+          },
+          {
+            "label": "Changelog",
+            "href": "/changelog"
+          }
+        ],
+        "license": "Apache-2.0"
+      }
+    ],
+    "footer": {
+      "links": [
+        {
+          "label": "Privacy Policy",
+          "href": "/privacy"
+        },
+        {
+          "label": "Terms of Use",
+          "href": "/terms"
+        },
+        {
+          "label": "Security",
+          "href": "/security"
+        },
+        {
+          "label": "API",
+          "href": "/api"
+        }
+      ],
+      "version": "Redline v0.3.1 (build 20250520)"
+    }
+  },
+  "components": {
+    "Header": "Logo, tagline, top nav links, working search form",
+    "SidebarNav": "Left navigation with meaningful links only",
+    "WikiBox": "Reusable bordered sidebar/content box with title and children",
+    "PreflightResultPanel": "Featured result with status, metadata, matched rule, evidence, and safe rewrite",
+    "CodeBlock": "Monospace block with line numbers",
+    "RecentViolations": "Small list/table of recent violations",
+    "SearchResultsPage": "Displays real filtered search results",
+    "SimplePage": "Reusable content page for docs/about/help/etc.",
+    "RuleListPage": "Lists rule records and links to detail pages",
+    "RuleDetailPage": "Shows real rule info, examples, and tests",
+    "PreflightPage": "Interactive preflight form connected to local demo detector or backend if available"
+  },
+  "interaction_requirements": {
+    "search_bar": "Must filter a local searchable dataset and navigate to a search results page.",
+    "links": "Every link must use React Router Link or equivalent. No href='#' unless linking to an actual in-page anchor.",
+    "preflight_demo": "The New Preflight Check page should accept pasted code/content. If it detects string-concatenated SQL, show REDLINE TRIGGERED using the same visual style. If it detects prompt injection phrases, show REDLINE TRIGGERED for PROMPT-001. Otherwise show PASS.",
+    "download_links": "If included, Download HTML and Download JSON should generate actual downloadable files from the current report. Do not include download links if they are not implemented.",
+    "rerun_check": "Re-run Check should actually rerun the local preflight detector on the current example."
+  },
+  "accessibility": {
+    "use_semantic_html": true,
+    "labels_for_search": true,
+    "keyboard_navigation": true,
+    "do_not_rely_on_color_only": true,
+    "status_text_visible": true
+  },
+  "implementation_notes": {
+    "preferred_stack": "React + TypeScript + Vite + CSS modules or plain CSS",
+    "no_ui_framework_required": true,
+    "data_source": "Use local TypeScript data arrays first: rules, violations, unsafePatterns, safePatterns, regressionTests. Later wire API.",
+    "backend_optional": "If backend exists, make API layer configurable through VITE_API_BASE_URL. If not, local demo data must still work.",
+    "responsive": "Desktop-first. For small screens, stack columns: header, left nav, main, right sidebar."
+  }
+}

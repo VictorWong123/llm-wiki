@@ -1,0 +1,26 @@
+{
+  "category": "secure_code",
+  "created_at": "2026-05-16T04:53:02Z",
+  "id": "raw_dependency_risk_001",
+  "rule_text": "Flag new dependencies, outdated packages, suspicious install scripts, missing lockfile changes, or dependency additions without review.",
+  "safe_patterns": [
+    "Prefer existing dependencies when practical.",
+    "Pin or lock versions.",
+    "Review package reputation, maintenance, and vulnerability history.",
+    "Use software composition analysis.",
+    "Keep lockfiles committed.",
+    "Require CI checks before merging dependency changes."
+  ],
+  "severity": "medium",
+  "source": "OWASP Component Analysis",
+  "source_url": "https://owasp.org/www-community/Component_Analysis",
+  "title": "Dependency Risk: Track Third-Party Components And Known Vulnerabilities",
+  "unsafe_patterns": [
+    "Adding a new dependency without explaining why it is needed",
+    "Installing packages from unknown or misspelled names",
+    "Running install scripts from untrusted packages",
+    "Removing lockfiles",
+    "Using unpinned versions in production paths",
+    "Ignoring known vulnerability scan results"
+  ]
+}

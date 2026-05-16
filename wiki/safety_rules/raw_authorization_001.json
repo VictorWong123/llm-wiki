@@ -1,0 +1,24 @@
+{
+  "category": "secure_code",
+  "created_at": "2026-05-16T04:53:02Z",
+  "id": "raw_authorization_001",
+  "rule_text": "Endpoints that read, update, or delete user-owned resources must enforce authorization on the server side. Deny access by default when permission is missing or unclear.",
+  "safe_patterns": [
+    "Enforce authorization server-side.",
+    "Check object-level permissions.",
+    "Deny by default.",
+    "Use middleware or helper functions like `requireUser`, `requireRole`, or `canAccessResource`.",
+    "Test allowed and forbidden paths."
+  ],
+  "severity": "high",
+  "source": "OWASP Authorization Cheat Sheet",
+  "source_url": "https://cheatsheetseries.owasp.org/cheatsheets/Authorization_Cheat_Sheet.html",
+  "title": "Authorization: Deny By Default And Check Permissions Server-Side",
+  "unsafe_patterns": [
+    "API route reads `user_id`, `owner_id`, `account_id`, or `project_id` from the client and directly queries data",
+    "Update/delete endpoints without permission checks",
+    "Admin actions without role checks",
+    "Client-side-only authorization logic",
+    "Object access without verifying ownership"
+  ]
+}

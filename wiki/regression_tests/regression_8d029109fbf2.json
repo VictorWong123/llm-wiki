@@ -1,0 +1,8 @@
+{
+  "created_at": "2026-05-16T05:05:12Z",
+  "expected_status": "REDLINE TRIGGERED",
+  "id": "regression_8d029109fbf2",
+  "input_type": "code",
+  "matched_rule_id": "raw_sql_injection_001",
+  "unsafe_content": "query = f\"SELECT * FROM users WHERE email = '{email}'\""
+}

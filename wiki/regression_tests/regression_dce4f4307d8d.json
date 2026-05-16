@@ -1,0 +1,8 @@
+{
+  "created_at": "2026-05-16T05:06:31Z",
+  "expected_status": "REDLINE TRIGGERED",
+  "id": "regression_dce4f4307d8d",
+  "input_type": "code",
+  "matched_rule_id": "raw_sql_injection_001",
+  "unsafe_content": "def get_user_by_email(conn, email):\n    query = f\"SELECT * FROM users WHERE email = '{email}'\"\n    return conn.execute(query).fetchone()\n"
+}

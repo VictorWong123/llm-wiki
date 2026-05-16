@@ -1,0 +1,11 @@
+{
+  "created_at": "2026-05-16T20:20:54Z",
+  "evidence": [],
+  "id": "violation_bdf8dca73dd5",
+  "matched_rule_id": "raw_sql_injection_001",
+  "notes": null,
+  "original_content": "query = f\"SELECT * FROM users WHERE email = '{email}'\"",
+  "safe_rewrite": "query = \"SELECT * FROM users WHERE email = ?\"",
+  "severity": "critical",
+  "status": "REDLINE TRIGGERED"
+}

@@ -1,0 +1,11 @@
+{
+  "created_at": "2026-05-16T05:07:10Z",
+  "evidence": [],
+  "id": "violation_f5e8404fc094",
+  "matched_rule_id": "raw_sql_injection_001",
+  "notes": "Accepted from Redline demo UI.",
+  "original_content": "def get_user_by_email(conn, email):\n    query = f\"SELECT * FROM users WHERE email = '{email}'\"\n    return conn.execute(query).fetchone()\n",
+  "safe_rewrite": "Use a parameterized query and pass user-controlled values separately from the SQL string.\n\n```python\ndef get_user_by_email(conn, email):\n    query = \"SELECT * FROM users WHERE email = ?\"\n    return conn.execute(query, (email,)).fetchone()\n```",
+  "severity": "critical",
+  "status": "REDLINE TRIGGERED"
+}

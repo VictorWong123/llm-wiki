@@ -1,0 +1,24 @@
+{
+  "category": "secure_code",
+  "created_at": "2026-05-16T04:53:02Z",
+  "id": "raw_sql_injection_001",
+  "rule_text": "Never place user-controlled input directly inside SQL strings. Use prepared statements or parameterized queries.",
+  "safe_patterns": [
+    "Use prepared statements.",
+    "Use parameterized queries.",
+    "Avoid dynamic SQL when possible.",
+    "Validate input shape and type before database access.",
+    "Use least-privilege database accounts."
+  ],
+  "severity": "critical",
+  "source": "OWASP SQL Injection Prevention Cheat Sheet",
+  "source_url": "https://cheatsheetseries.owasp.org/cheatsheets/SQL_Injection_Prevention_Cheat_Sheet.html",
+  "title": "SQL Injection: Use Parameterized Queries For User-Controlled Input",
+  "unsafe_patterns": [
+    "Python f-string SQL: `f\"SELECT * FROM users WHERE email = '{email}'\"`",
+    "Python string concatenation into SQL: `\"SELECT ...\" + user_input`",
+    "Python `.format()` inserting variables into SQL",
+    "JavaScript template literal SQL with `${userInput}`",
+    "SQL generated from request body, query params, cookies, or tool output without parameters"
+  ]
+}
