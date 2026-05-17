@@ -10,10 +10,18 @@ export function MainPage() {
     <>
       <h1>Redline Main Page</h1>
       <p>
-        Redline helps agents write safer code by making <Link to="/rules">safety rules</Link> executable, observable, and fixable.
+        <strong>Redline</strong> is a living safety wiki and preflight layer for AI coding agents.
+        It sits between the agent and the codebase, enforcing <Link to="/rules">security rules</Link> in
+        real time so unsafe changes never reach production.
       </p>
       <p>
-        Run a <Link to="/preflight">preflight check</Link> on your changes to catch issues before they reach production.
+        Run a <Link to="/preflight">preflight check</Link> on your changes to catch SQL injection, XSS,
+        command injection, secrets exposure, and other vulnerabilities before they ship. Every blocked
+        result includes a safe rewrite suggestion and links to the matched rule.
+      </p>
+      <p>
+        The backend uses deterministic detectors, Redis-backed reflex memory, and a knowledge graph to
+        continuously learn from past violations. Read more on the <Link to="/about">About Redline</Link> page.
       </p>
       {featured ? <PreflightResultPanel report={featured} allowDownloads /> : null}
       <RecentViolations />

@@ -346,8 +346,14 @@ export const simplePages: SimplePageContent[] = [
     id: "about",
     title: "About Redline",
     path: "/about",
-    description: "Redline is a living safety wiki and preflight layer for AI coding agents.",
-    sections: [{ heading: "Purpose", body: "The project makes safety rules executable, observable, and fixable so unsafe changes are caught before production." }]
+    description: "Redline is a living safety wiki and preflight layer for AI coding agents. It sits between the agent and the codebase, enforcing security rules in real time so unsafe changes never reach production.",
+    sections: [
+      { heading: "Purpose", body: "Redline makes safety rules executable, observable, and fixable. Instead of static documentation that agents ignore, Redline provides a machine-readable wiki of security rules, detector patterns, safe rewrites, and regression tests that coding agents must consult before and after every code change." },
+      { heading: "How it works", body: "Before an agent edits code, it retrieves relevant safety rules from the Redline wiki via redline_context. After editing, it runs redline_preflight to scan the diff against deterministic detectors and Redis-backed memory. Results are PASS, WARNING, NEEDS HUMAN REVIEW, or REDLINE TRIGGERED. Triggered results must be fixed before the change is finalized." },
+      { heading: "Architecture", body: "The backend is a FastAPI service backed by Redis (with RedisJSON, RediSearch, vector search, and Streams for memory and event tracing) and Cognee for knowledge-graph ingestion. The frontend is a React/Vite wiki UI with client-side search, preflight check panels, and rule browsing. Agent-facing CLI scripts (redline_context, redline_preflight, redline_finding) work with or without the backend running." },
+      { heading: "Key features", body: "Deterministic detectors for SQL injection, XSS, path traversal, command injection, SSRF, secrets exposure, and more. Safe rewrite suggestions for every blocked pattern. Reflex memory that fingerprints unsafe proposals so repeat violations are caught instantly. A live event stream for demo traceability. Agent findings that log novel security issues discovered during coding sessions." },
+      { heading: "Demo modes", body: "Connected mode (default) runs the full pipeline with backend event recording. Setting REDLINE_AGENT_GUARD=off disables the guard for a baseline comparison, showing what happens when agents code without safety rails." }
+    ]
   },
   {
     id: "docs",
